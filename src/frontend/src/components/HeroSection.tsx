@@ -5,15 +5,30 @@ export default function HeroSection() {
   const imgRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Parallax scroll
+  // Smooth parallax scroll
   useEffect(() => {
+    let rafId: number;
+    let currentY = 0;
+    let targetY = 0;
+
     const onScroll = () => {
-      if (!imgRef.current) return;
-      const y = window.scrollY;
-      imgRef.current.style.transform = `scale(1) translateY(${y * 0.3}px)`;
+      targetY = window.scrollY;
     };
+
+    const tick = () => {
+      currentY += (targetY - currentY) * 0.08;
+      if (imgRef.current) {
+        imgRef.current.style.transform = `scale(1) translateY(${currentY * 0.25}px)`;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Three.js particle background
@@ -39,7 +54,6 @@ export default function HeroSection() {
     );
     camera.position.z = 5;
 
-    // Particles
     const particleCount = 80;
     const positions: number[] = [];
     const velocities: number[] = [];
@@ -62,7 +76,6 @@ export default function HeroSection() {
       "position",
       new THREE.Float32BufferAttribute(positions, 3),
     );
-
     const material = new THREE.PointsMaterial({
       color: 0xf5efe6,
       size: 0.08,
@@ -70,7 +83,6 @@ export default function HeroSection() {
       opacity: 0.55,
       sizeAttenuation: true,
     });
-
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
@@ -80,25 +92,20 @@ export default function HeroSection() {
     const animate = () => {
       animId = requestAnimationFrame(animate);
       time += 0.01;
-
       const pos = geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particleCount; i++) {
         const idx = i * 3;
         pos[idx] += velocities[i * 3];
         pos[idx + 1] += velocities[i * 3 + 1];
         pos[idx + 2] += velocities[i * 3 + 2];
-
-        // Loop particles when they drift out of bounds
         if (pos[idx + 1] > 4.5) pos[idx + 1] = -4.5;
         if (pos[idx] > 6.5) pos[idx] = -6.5;
         if (pos[idx] < -6.5) pos[idx] = 6.5;
       }
       geometry.attributes.position.needsUpdate = true;
-
       particles.rotation.y = time * 0.03;
       renderer.render(scene, camera);
     };
-
     animate();
 
     const onResize = () => {
@@ -129,6 +136,10 @@ export default function HeroSection() {
       id="hero"
       className="relative w-full h-screen min-h-[600px] overflow-hidden"
     >
+      {/* Cinematic letterbox bars — retract on load */}
+      <div className="hero-letterbox-top" />
+      <div className="hero-letterbox-bottom" />
+
       {/* Three.js particle canvas */}
       <canvas
         ref={canvasRef}
@@ -136,50 +147,136 @@ export default function HeroSection() {
         style={{ zIndex: 1 }}
       />
 
-      {/* Background image with zoom + parallax */}
+      {/* Background: cinematic hero zoom */}
       <div
         ref={imgRef}
         className="absolute inset-0 hero-zoom"
-        style={{ willChange: "transform", zIndex: 0 }}
+        style={{
+          willChange: "transform",
+          zIndex: 0,
+          animation: "heroZoom 16s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        }}
       >
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/assets/generated/hero-main.dim_1920x1080.jpg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 1 }}
+        >
+          <source src="/assets/VID_20260319_163741_254.mp4" type="video/mp4" />
+          <source
+            src="/assets/VID_20260319_163741_254-1.mp4"
+            type="video/mp4"
+          />
+        </video>
         <img
           src="/assets/generated/hero-main.dim_1920x1080.jpg"
           alt="Label Radhika Chandna hero"
           className="w-full h-full object-cover object-top"
+          style={{ position: "relative", zIndex: 0 }}
         />
       </div>
 
-      {/* Dark gradient overlay on left */}
+      {/* Cinematic gradient overlay — left-heavy for text legibility */}
       <div
-        className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent"
-        style={{ zIndex: 2 }}
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(105deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)",
+          zIndex: 2,
+        }}
+      />
+
+      {/* Vignette overlay */}
+      <div
+        className="absolute inset-0 hero-vignette pointer-events-none"
+        style={{ zIndex: 3 }}
+      />
+
+      {/* Bottom fade for smooth section blend */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to bottom, transparent, rgba(255,255,255,0.06))",
+          zIndex: 3,
+        }}
       />
 
       {/* Text overlay */}
-      <div className="absolute inset-0 flex items-center" style={{ zIndex: 3 }}>
+      <div className="absolute inset-0 flex items-center" style={{ zIndex: 4 }}>
         <div className="container mx-auto px-8 md:px-16">
-          <div className="max-w-lg">
-            <p className="text-xs uppercase tracking-widest-xl text-white/70 mb-4 font-sans">
-              The New Collection
+          <div className="max-w-2xl">
+            {/* Overline */}
+            <p
+              className="word-reveal text-[10px] uppercase tracking-widest-xl text-white/60 mb-8 font-sans"
+              style={{ animationDelay: "0.3s" }}
+            >
+              The New Collection · 2026
             </p>
-            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-light text-white leading-none tracking-wide-lg uppercase mb-6">
-              Radhika
-              <br />
-              Chandna
+
+            {/* Main headline — cinematic stagger */}
+            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-light text-white leading-none tracking-wide-lg uppercase mb-4">
+              <span
+                className="word-reveal block"
+                style={{ animationDelay: "0.6s" }}
+              >
+                Designed
+              </span>
+              <span
+                className="word-reveal block"
+                style={{ animationDelay: "0.9s" }}
+              >
+                to be
+              </span>
+              <span
+                className="word-reveal block font-display italic font-light"
+                style={{ animationDelay: "1.2s" }}
+              >
+                Remembered
+              </span>
             </h1>
-            <p className="text-xs uppercase tracking-widest-xl text-white/80 mb-10 font-sans">
-              Elevated Indian Luxury
+
+            {/* Thin divider */}
+            <div
+              className="word-reveal w-12 h-px bg-white/40 my-8"
+              style={{ animationDelay: "1.4s" }}
+            />
+
+            {/* Subline */}
+            <p
+              className="word-reveal text-[11px] uppercase tracking-widest-xl text-white/70 mb-12 font-sans"
+              style={{ animationDelay: "1.5s" }}
+            >
+              Label Radhika Chandna · Gurgaon
             </p>
+
+            {/* CTA */}
             <button
               type="button"
               data-ocid="hero.primary_button"
               onClick={scrollToCollections}
-              className="inline-block border border-white/70 text-white text-xs uppercase tracking-widest-xl px-8 py-4 rounded-pill hover:bg-white hover:text-off-black transition-all duration-500 font-sans"
+              className="word-reveal btn-premium inline-block border border-white/60 text-white text-[10px] uppercase tracking-widest-xl px-10 py-4 rounded-pill hover:bg-white hover:text-off-black font-sans"
+              style={{ animationDelay: "1.8s" }}
             >
               Explore Collections
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div
+        className="word-reveal absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        style={{ zIndex: 4, animationDelay: "2.2s" }}
+      >
+        <span className="text-[9px] uppercase tracking-widest-xl text-white/40 font-sans">
+          Scroll
+        </span>
+        <div className="w-px h-10 bg-white/20" />
       </div>
     </section>
   );

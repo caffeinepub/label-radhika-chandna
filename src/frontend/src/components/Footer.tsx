@@ -11,6 +11,8 @@ export default function Footer() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const paymentMethods = ["Visa", "Mastercard", "UPI", "Cash on Delivery"];
+
   return (
     <footer className="bg-[#0B0B0B] text-[#F2F2F2] py-16">
       <div className="container mx-auto px-6 md:px-12">
@@ -68,6 +70,36 @@ export default function Footer() {
           >
             <Facebook size={18} />
           </a>
+        </div>
+
+        {/* Return/Exchange Policy */}
+        <div className="border-t border-[#222] pt-8 mb-8 text-center">
+          <p className="text-[9px] uppercase tracking-widest-xl text-[#555] mb-3 font-sans">
+            Returns & Exchanges
+          </p>
+          <p className="text-xs text-[#555] font-sans leading-relaxed">
+            7-day size exchange &nbsp;·&nbsp; Custom orders are non-returnable
+            &nbsp;·&nbsp; All pieces quality-checked before dispatch
+          </p>
+        </div>
+
+        {/* Payment Badges */}
+        <div className="border-t border-[#222] pt-8 mb-8">
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-[9px] uppercase tracking-widest-xl text-[#555] font-sans">
+              Secure Payments
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {paymentMethods.map((method) => (
+                <span
+                  key={method}
+                  className="px-3 py-1 border border-[#333] text-[#555] text-[9px] uppercase tracking-widest-xl font-sans"
+                >
+                  {method}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="border-t border-[#222] pt-8 text-center">

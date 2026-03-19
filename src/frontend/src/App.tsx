@@ -6,17 +6,33 @@ import BestsellersSection from "./components/BestsellersSection";
 import CartDrawer from "./components/CartDrawer";
 import CheckoutModal from "./components/CheckoutModal";
 import CollectionsSection from "./components/CollectionsSection";
+import ConsultationBannerSection from "./components/ConsultationBannerSection";
 import ContactSection from "./components/ContactSection";
+import CraftsmanshipSection from "./components/CraftsmanshipSection";
 import Footer from "./components/Footer";
 import HeroSection from "./components/HeroSection";
+import InstagramSection from "./components/InstagramSection";
+import LiveActivityBanner from "./components/LiveActivityBanner";
+import LiveVisitorCounter from "./components/LiveVisitorCounter";
 import LookbookSection from "./components/LookbookSection";
 import Navbar from "./components/Navbar";
+import ProductDetailModal from "./components/ProductDetailModal";
 import TestimonialsSection from "./components/TestimonialsSection";
+import UrgencyWhatsAppSection from "./components/UrgencyWhatsAppSection";
 import { useGetCart } from "./hooks/useQueries";
+
+interface Product {
+  id: bigint;
+  name: string;
+  priceINR: bigint;
+  description?: string;
+  colors?: string[];
+}
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { data: cartItems } = useGetCart();
 
   return (
@@ -28,10 +44,14 @@ export default function App() {
       <main>
         <HeroSection />
         <CollectionsSection />
-        <BestsellersSection />
+        <BestsellersSection onProductClick={(p) => setSelectedProduct(p)} />
         <LookbookSection />
+        <CraftsmanshipSection />
         <AboutSection />
         <TestimonialsSection />
+        <InstagramSection />
+        <UrgencyWhatsAppSection />
+        <ConsultationBannerSection />
         <ContactSection />
       </main>
 
@@ -51,6 +71,14 @@ export default function App() {
         onClose={() => setCheckoutOpen(false)}
         cartItems={cartItems ?? []}
       />
+
+      <ProductDetailModal
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
+
+      <LiveActivityBanner />
+      <LiveVisitorCounter />
 
       {/* Floating WhatsApp button */}
       <a

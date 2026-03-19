@@ -7,29 +7,22 @@
 @layer base {
   :root {
     --radius: 0.625rem;
-    /* White background */
     --background: 1 0 0;
     --foreground: 0.09 0 0;
-    /* Near-black #111111 */
     --card: 1 0 0;
     --card-foreground: 0.09 0 0;
     --popover: 1 0 0;
     --popover-foreground: 0.09 0 0;
-    /* Primary = near-black */
     --primary: 0.09 0 0;
     --primary-foreground: 1 0 0;
-    /* Secondary = warm ivory #E7DED2 */
     --secondary: 0.89 0.012 65;
     --secondary-foreground: 0.09 0 0;
-    /* Muted = warm gray */
     --muted: 0.94 0.008 65;
     --muted-foreground: 0.47 0.014 60;
-    /* Accent = taupe #C8B6A5 */
     --accent: 0.76 0.022 60;
     --accent-foreground: 0.09 0 0;
     --destructive: 0.577 0.245 27.325;
     --destructive-foreground: 0.985 0 0;
-    /* Border = very light warm gray #E9E2DA */
     --border: 0.91 0.01 65;
     --input: 0.91 0.01 65;
     --ring: 0.76 0.022 60;
@@ -76,11 +69,17 @@
     letter-spacing: 0.12em;
   }
 
-  /* Fade-in-up animation for scroll reveals */
+  /* ─── Scroll Reveal ─────────────────────────────────────────── */
   .reveal {
     opacity: 0;
-    transform: translateY(32px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    transform: translateY(28px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s
+        cubic-bezier(0.22, 1, 0.36, 1);
+    }
   }
 
   .reveal.visible {
@@ -88,47 +87,257 @@
     transform: translateY(0);
   }
 
-  /* Hero slow zoom */
+  /* Staggered child delays */
+  .reveal-delay-1 {
+    transition-delay: 0.15s;
+  }
+  .reveal-delay-2 {
+    transition-delay: 0.3s;
+  }
+  .reveal-delay-3 {
+    transition-delay: 0.45s;
+  }
+  .reveal-delay-4 {
+    transition-delay: 0.6s;
+  }
+
+  /* ─── Hero zoom (cinematic, very slow) ──────────────────────── */
   @keyframes heroZoom {
     from {
-      transform: scale(1.1);
+      transform: scale(1.18) translateY(0px);
     }
     to {
-      transform: scale(1);
+      transform: scale(1.0) translateY(0px);
     }
   }
 
   .hero-zoom {
-    animation: heroZoom 8s ease-out forwards;
+    animation: heroZoom 16s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
-  /* Parallax handled via JS */
+  /* ─── Letterbox open animation ───────────────────────────────── */
+  @keyframes letterboxTop {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-100%);
+    }
+  }
+  @keyframes letterboxBottom {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+  .hero-letterbox-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: #000;
+    z-index: 10;
+    animation: letterboxTop 1.4s cubic-bezier(0.76, 0, 0.24, 1) 0.2s forwards;
+  }
+  .hero-letterbox-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: #000;
+    z-index: 10;
+    animation: letterboxBottom 1.4s cubic-bezier(0.76, 0, 0.24, 1) 0.2s forwards;
+  }
 
-  /* Card hover lift */
+  /* ─── Vignette overlay ───────────────────────────────────────── */
+  .hero-vignette {
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+  }
+
+  /* ─── Word reveal (staggered headline) ──────────────────────── */
+  @keyframes wordReveal {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .word-reveal {
+    display: inline-block;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .word-reveal {
+      animation: wordReveal 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word-reveal {
+      opacity: 1;
+    }
+  }
+
+  /* ─── Card hover lift ────────────────────────────────────────── */
   .card-lift {
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s
+      cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card-lift:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.14);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   }
 
-  /* Image zoom on hover */
+  /* ─── Image zoom on hover (luxuriously slow) ─────────────────── */
   .img-zoom-wrap {
     overflow: hidden;
   }
   .img-zoom-wrap img {
-    transition: transform 0.6s ease;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .img-zoom-wrap:hover img {
-    transform: scale(1.08);
+    transform: scale(1.06);
   }
 
-  /* Glassmorphism */
+  /* ─── Product card overlay ───────────────────────────────────── */
+  .product-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .group:hover .product-card-overlay {
+    opacity: 1;
+  }
+  .product-card-overlay-text {
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Premium button ─────────────────────────────────────────── */
+  .btn-premium {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s
+      cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s
+      cubic-bezier(0.22, 1, 0.36, 1), color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-premium:hover {
+    transform: scale(1.025);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.13);
+  }
+
+  /* ─── Glassmorphism nav ──────────────────────────────────────── */
   .glass-nav {
     background: rgba(231, 222, 210, 0.72);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ─── Navbar states ──────────────────────────────────────────── */
+  .navbar-pill {
+    transition: background 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s
+      cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.6s
+      cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .navbar-transparent {
+    background: rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: none;
+  }
+  .navbar-scrolled {
+    background: rgba(245, 240, 234, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ─── Section fade edge ──────────────────────────────────────── */
+  .section-fade-edge::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--fade-to, #ffffff));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ─── Modal slide-up ─────────────────────────────────────────── */
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(60px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .modal-slide-up {
+    animation: modalSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ─── Notification slide-up ─────────────────────────────────── */
+  @keyframes slideUpNotif {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .slide-up-notif {
+    animation: slideUpNotif 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ─── Pulse green (live indicator) ──────────────────────────── */
+  @keyframes pulseGreen {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+  .pulse-green {
+    animation: pulseGreen 1.6s ease-in-out infinite;
+  }
+
+  /* ─── Craftsmanship parallax ─────────────────────────────────── */
+  .craft-panel {
+    position: relative;
+    overflow: hidden;
+  }
+  .craft-panel-bg {
+    transition: transform 0.1s linear;
+    will-change: transform;
   }
 }

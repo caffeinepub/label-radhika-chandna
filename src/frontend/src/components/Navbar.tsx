@@ -14,7 +14,8 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
     cartItems?.reduce((acc, item) => acc + Number(item.quantity), 0) ?? 0;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -31,17 +32,27 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
     { label: "Contact", id: "contact" },
   ];
 
+  // Text/icon color based on scroll state
+  const linkClass = scrolled
+    ? "text-off-black hover:text-taupe"
+    : "text-white/90 hover:text-white";
+  const iconClass = scrolled
+    ? "text-off-black"
+    : "text-white/90 hover:text-white";
+  const brandSubClass = scrolled ? "text-warm-gray" : "text-white/60";
+  const brandMainClass = scrolled ? "text-off-black" : "text-white";
+
   return (
     <>
       {/* Free delivery banner */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-off-black text-white text-center py-2 text-xs tracking-widest-xl uppercase font-sans">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-off-black/90 text-white/80 text-center py-1.5 text-[10px] tracking-widest-xl uppercase font-sans">
         Free Delivery on All Orders Across India
       </div>
 
-      {/* Glassmorphism pill navbar */}
+      {/* Pill navbar */}
       <nav
-        className={`fixed top-8 left-1/2 z-40 -translate-x-1/2 w-[90%] max-w-6xl glass-nav rounded-pill px-6 py-3 transition-all duration-500 ${
-          scrolled ? "shadow-luxury" : ""
+        className={`fixed top-8 left-1/2 z-40 -translate-x-1/2 w-[90%] max-w-6xl rounded-pill px-6 py-3 navbar-pill ${
+          scrolled ? "navbar-scrolled" : "navbar-transparent"
         }`}
       >
         <div className="flex items-center justify-between gap-4">
@@ -51,7 +62,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               type="button"
               data-ocid="nav.collections.link"
               onClick={() => scrollTo("collections")}
-              className="text-xs uppercase tracking-widest-xl text-off-black hover:text-taupe transition-colors font-sans"
+              className={`text-xs uppercase tracking-widest-xl transition-colors duration-300 font-sans ${linkClass}`}
             >
               Collections
             </button>
@@ -59,7 +70,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               type="button"
               data-ocid="nav.arrivals.link"
               onClick={() => scrollTo("bestsellers")}
-              className="text-xs uppercase tracking-widest-xl text-off-black hover:text-taupe transition-colors font-sans"
+              className={`text-xs uppercase tracking-widest-xl transition-colors duration-300 font-sans ${linkClass}`}
             >
               New Arrivals
             </button>
@@ -72,10 +83,14 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               onClick={() => scrollTo("hero")}
               className="text-center"
             >
-              <div className="text-[9px] uppercase tracking-widest-xl text-warm-gray font-sans">
+              <div
+                className={`text-[9px] uppercase tracking-widest-xl font-sans transition-colors duration-300 ${brandSubClass}`}
+              >
                 Label
               </div>
-              <div className="text-base md:text-lg font-display font-medium tracking-wide-lg text-off-black uppercase">
+              <div
+                className={`text-base md:text-lg font-display font-medium tracking-wide-lg uppercase transition-colors duration-300 ${brandMainClass}`}
+              >
                 Radhika Chandna
               </div>
             </button>
@@ -87,7 +102,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               type="button"
               data-ocid="nav.about.link"
               onClick={() => scrollTo("about")}
-              className="text-xs uppercase tracking-widest-xl text-off-black hover:text-taupe transition-colors font-sans"
+              className={`text-xs uppercase tracking-widest-xl transition-colors duration-300 font-sans ${linkClass}`}
             >
               About
             </button>
@@ -95,21 +110,21 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               type="button"
               data-ocid="nav.contact.link"
               onClick={() => scrollTo("contact")}
-              className="text-xs uppercase tracking-widest-xl text-off-black hover:text-taupe transition-colors font-sans"
+              className={`text-xs uppercase tracking-widest-xl transition-colors duration-300 font-sans ${linkClass}`}
             >
               Contact
             </button>
             <div className="flex items-center gap-3 ml-2">
               <button
                 type="button"
-                className="text-off-black hover:text-taupe transition-colors"
+                className={`transition-colors duration-300 ${iconClass}`}
                 aria-label="Search"
               >
                 <Search size={16} />
               </button>
               <button
                 type="button"
-                className="text-off-black hover:text-taupe transition-colors"
+                className={`transition-colors duration-300 ${iconClass}`}
                 aria-label="Account"
               >
                 <User size={16} />
@@ -118,7 +133,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
                 type="button"
                 data-ocid="cart.open_modal_button"
                 onClick={onCartOpen}
-                className="relative text-off-black hover:text-taupe transition-colors"
+                className={`relative transition-colors duration-300 ${iconClass}`}
                 aria-label="Cart"
               >
                 <ShoppingBag size={16} />
@@ -137,7 +152,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               type="button"
               data-ocid="cart.open_modal_button"
               onClick={onCartOpen}
-              className="relative text-off-black"
+              className={`relative transition-colors duration-300 ${iconClass}`}
               aria-label="Cart"
             >
               <ShoppingBag size={18} />
@@ -149,7 +164,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             </button>
             <button
               type="button"
-              className="text-off-black"
+              className={`transition-colors duration-300 ${iconClass}`}
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Menu"
             >
@@ -160,19 +175,26 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t border-warm-border flex flex-col gap-4">
+          <div
+            className={`md:hidden mt-4 pt-4 border-t ${
+              scrolled ? "border-warm-border" : "border-white/20"
+            } flex flex-col gap-4`}
+          >
             {navLinks.map(({ label, id }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => scrollTo(id)}
-                className="text-xs uppercase tracking-widest-xl text-off-black hover:text-taupe text-left font-sans"
+                className={`text-xs uppercase tracking-widest-xl text-left font-sans transition-colors duration-300 ${linkClass}`}
               >
                 {label}
               </button>
             ))}
-            {/* Checkout CTA — prominent, separated */}
-            <div className="pt-3 border-t border-warm-border">
+            <div
+              className={`pt-3 border-t ${
+                scrolled ? "border-warm-border" : "border-white/20"
+              }`}
+            >
               <button
                 type="button"
                 data-ocid="checkout.open_modal_button"
@@ -180,7 +202,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
                   setMobileOpen(false);
                   onCartOpen();
                 }}
-                className="flex items-center gap-2 w-full justify-center py-3 bg-off-black text-white text-xs uppercase tracking-widest-xl font-sans hover:bg-taupe transition-colors"
+                className="flex items-center gap-2 w-full justify-center py-3 bg-off-black text-white text-xs uppercase tracking-widest-xl font-sans hover:bg-taupe transition-colors btn-premium"
               >
                 <ShoppingBag size={14} />
                 Checkout

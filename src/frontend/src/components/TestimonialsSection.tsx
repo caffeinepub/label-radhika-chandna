@@ -1,5 +1,12 @@
 import { useReveal } from "../hooks/useReveal";
 
+const trustStats = [
+  { label: "Happy Customers", value: "100+" },
+  { label: "Rated", value: "5 ★" },
+  { label: "Custom Fits", value: "Available" },
+  { label: "Delivery", value: "Pan India" },
+];
+
 const testimonials = [
   {
     id: "priya",
@@ -31,7 +38,28 @@ export default function TestimonialsSection() {
   const ref = useReveal();
 
   return (
-    <section className="py-24 md:py-32 bg-white">
+    <section className="py-32 md:py-40 bg-white">
+      {/* Trust stats strip */}
+      <div className="border-y border-warm-border bg-[#FAF8F5] py-5 mb-20">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="flex flex-wrap justify-center divide-x divide-warm-border">
+            {trustStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex flex-col items-center px-8 py-2 gap-0.5"
+              >
+                <span className="font-display text-xl font-light text-off-black">
+                  {stat.value}
+                </span>
+                <span className="text-[9px] uppercase tracking-widest-xl text-warm-gray font-sans">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-6 md:px-12">
         <div ref={ref} className="reveal text-center mb-16">
           <p className="text-xs uppercase tracking-widest-xl text-warm-gray mb-3 font-sans">

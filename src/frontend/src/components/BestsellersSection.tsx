@@ -1,4 +1,4 @@
-import { ShoppingBag } from "lucide-react";
+import { Eye, ShoppingBag } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { useAddToCart, useGetBestsellers } from "../hooks/useQueries";
@@ -55,17 +55,42 @@ const productImages: Record<string, string> = {
     "/assets/generated/product-dahlia-fuchsia.dim_600x800.jpg",
 };
 
+// Urgency stock counts per index (0–5)
+const urgencyCounts = [3, 2, 3, 1, 2, 3];
+
 function formatPrice(price: bigint) {
   return `₹${Number(price).toLocaleString("en-IN")}`;
 }
 
+interface Product {
+  id: bigint;
+  name: string;
+  priceINR: bigint;
+  colors?: string[];
+  description?: string;
+  category?: string;
+  collection?: string;
+  isBestseller?: boolean;
+}
+
+// Stagger delays for up to 6 cards
+const staggerDelays = ["0s", "0.1s", "0.2s", "0.3s", "0.4s", "0.5s"];
+
 function TiltCard({
   children,
   ocid,
-}: { children: React.ReactNode; ocid: string }) {
-  const cardRef = useRef<HTMLDivElement>(null);
+  onClick,
+  revealDelay,
+}: {
+  children: React.ReactNode;
+  ocid: string;
+  onClick: () => void;
+  revealDelay: string;
+}) {
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const revealRef = useReveal();
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
     const card = cardRef.current;
     if (!card) return;
     const rect = card.getBoundingClientRect();
@@ -73,33 +98,49 @@ function TiltCard({
     const cy = rect.top + rect.height / 2;
     const dx = e.clientX - cx;
     const dy = e.clientY - cy;
-    const rotateY = (dx / (rect.width / 2)) * 8;
-    const rotateX = -(dy / (rect.height / 2)) * 8;
-    card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px)`;
+    const rotateY = (dx / (rect.width / 2)) * 6;
+    const rotateX = -(dy / (rect.height / 2)) * 6;
+    card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px)`;
   };
 
   const handleMouseLeave = () => {
     const card = cardRef.current;
     if (!card) return;
     card.style.transform =
-      "perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)";
+      "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px) translateY(0px)";
   };
 
   return (
     <div
-      ref={cardRef}
-      data-ocid={ocid}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="card-lift flex-shrink-0 w-[260px] md:w-[280px] snap-start bg-white rounded-sm overflow-hidden shadow-xs"
-      style={{ transition: "transform 0.2s ease", willChange: "transform" }}
+      ref={revealRef}
+      className="reveal flex-shrink-0 w-[260px] md:w-[280px] snap-start"
+      style={{ transitionDelay: revealDelay }}
     >
-      {children}
+      <button
+        ref={cardRef}
+        type="button"
+        data-ocid={ocid}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={onClick}
+        className="group w-full bg-white rounded-sm overflow-hidden shadow-xs cursor-pointer text-left"
+        style={{
+          transition:
+            "transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s cubic-bezier(0.22,1,0.36,1)",
+          willChange: "transform",
+        }}
+      >
+        {children}
+      </button>
     </div>
   );
 }
 
-export default function BestsellersSection() {
+export default function BestsellersSection({
+  onProductClick,
+}: {
+  onProductClick?: (product: Product) => void;
+}) {
   const { data: products } = useGetBestsellers();
   const addToCart = useAddToCart();
   const ref = useReveal();
@@ -123,7 +164,16 @@ export default function BestsellersSection() {
     "/assets/generated/product-blair-white.dim_600x800.jpg";
 
   return (
-    <section id="bestsellers" className="py-24 md:py-32 bg-[#FAF8F5]">
+    <section
+      id="bestsellers"
+      className="py-24 md:py-32 bg-[#FAF8F5] relative overflow-hidden"
+    >
+      {/* Top section blend */}
+      <div
+        className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, #ffffff, #FAF8F5)" }}
+      />
+
       <div className="container mx-auto px-6 md:px-12">
         <div ref={ref} className="reveal text-center mb-16">
           <p className="text-xs uppercase tracking-widest-xl text-warm-gray mb-3 font-sans">
@@ -134,21 +184,40 @@ export default function BestsellersSection() {
           </h2>
         </div>
 
-        {/* Horizontal scroll */}
-        <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory">
+        <div className="flex gap-5 overflow-x-auto pb-6 snap-x snap-mandatory">
           {displayProducts.map((product, i) => (
             <TiltCard
               key={String(product.id)}
               ocid={`bestsellers.item.${i + 1}`}
+              onClick={() => onProductClick?.(product)}
+              revealDelay={staggerDelays[i] ?? "0s"}
             >
-              <div className="img-zoom-wrap aspect-[3/4] overflow-hidden">
+              {/* Image container with overlay */}
+              <div className="img-zoom-wrap aspect-[3/4] overflow-hidden relative">
                 <img
                   src={getImage(product.name)}
                   alt={product.name}
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
+                {/* Urgency badge */}
+                <div className="absolute top-3 left-3 z-10 bg-[#8B1A1A] text-white text-[9px] font-sans uppercase tracking-widest px-2 py-1 rounded-full">
+                  Only {urgencyCounts[i] ?? 3} left
+                </div>
+                {/* Live viewers badge */}
+                <div className="absolute top-3 right-3 bg-white/90 text-gray-700 text-[10px] font-sans px-2 py-1 rounded-full flex items-center gap-1 z-10">
+                  <Eye size={10} />
+                  <span>{2 + i} viewing</span>
+                </div>
+                {/* Elegant hover overlay */}
+                <div className="product-card-overlay">
+                  <span className="product-card-overlay-text">
+                    View Product
+                  </span>
+                </div>
               </div>
+
+              {/* Card body */}
               <div className="p-5">
                 <h3 className="font-display text-lg font-light text-off-black mb-1 uppercase tracking-wide">
                   {product.name}
@@ -159,12 +228,13 @@ export default function BestsellersSection() {
                 <button
                   type="button"
                   data-ocid={`bestsellers.item.${i + 1}.button`}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     addToCart.mutate(product.id);
                     toast.success(`${product.name} added to bag`);
                   }}
                   disabled={addToCart.isPending}
-                  className="w-full flex items-center justify-center gap-2 border border-off-black text-off-black text-xs uppercase tracking-widest-xl py-3 hover:bg-off-black hover:text-white transition-all duration-400 font-sans"
+                  className="btn-premium w-full flex items-center justify-center gap-2 border border-off-black text-off-black text-xs uppercase tracking-widest-xl py-3 hover:bg-off-black hover:text-white font-sans"
                 >
                   <ShoppingBag size={12} />
                   Add to Bag
