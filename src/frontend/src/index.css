@@ -1,0 +1,134 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.625rem;
+    /* White background */
+    --background: 1 0 0;
+    --foreground: 0.09 0 0;
+    /* Near-black #111111 */
+    --card: 1 0 0;
+    --card-foreground: 0.09 0 0;
+    --popover: 1 0 0;
+    --popover-foreground: 0.09 0 0;
+    /* Primary = near-black */
+    --primary: 0.09 0 0;
+    --primary-foreground: 1 0 0;
+    /* Secondary = warm ivory #E7DED2 */
+    --secondary: 0.89 0.012 65;
+    --secondary-foreground: 0.09 0 0;
+    /* Muted = warm gray */
+    --muted: 0.94 0.008 65;
+    --muted-foreground: 0.47 0.014 60;
+    /* Accent = taupe #C8B6A5 */
+    --accent: 0.76 0.022 60;
+    --accent-foreground: 0.09 0 0;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+    /* Border = very light warm gray #E9E2DA */
+    --border: 0.91 0.01 65;
+    --input: 0.91 0.01 65;
+    --ring: 0.76 0.022 60;
+    --chart-1: 0.646 0.222 41.116;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+    --sidebar: 0.985 0 0;
+    --sidebar-foreground: 0.09 0 0;
+    --sidebar-primary: 0.09 0 0;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.94 0.008 65;
+    --sidebar-accent-foreground: 0.09 0 0;
+    --sidebar-border: 0.91 0.01 65;
+    --sidebar-ring: 0.76 0.022 60;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Cormorant Garamond", serif;
+  }
+
+  .tracking-widest-xl {
+    letter-spacing: 0.2em;
+  }
+
+  .tracking-wide-lg {
+    letter-spacing: 0.12em;
+  }
+
+  /* Fade-in-up animation for scroll reveals */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero slow zoom */
+  @keyframes heroZoom {
+    from {
+      transform: scale(1.1);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .hero-zoom {
+    animation: heroZoom 8s ease-out forwards;
+  }
+
+  /* Parallax handled via JS */
+
+  /* Card hover lift */
+  .card-lift {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.14);
+  }
+
+  /* Image zoom on hover */
+  .img-zoom-wrap {
+    overflow: hidden;
+  }
+  .img-zoom-wrap img {
+    transition: transform 0.6s ease;
+  }
+  .img-zoom-wrap:hover img {
+    transform: scale(1.08);
+  }
+
+  /* Glassmorphism */
+  .glass-nav {
+    background: rgba(231, 222, 210, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  }
+}
